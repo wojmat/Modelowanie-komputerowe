@@ -1,3 +1,19 @@
+# Sprawozdanie z listy 1 - Automat komórkowy - Plamy
+
+# Mateusz Wojteczek
+
+
+
+## Wstęp
+
+Celem tej pracy było zaprojektowanie i stworzenie programu komputerowego symulującego ewolucję plam za pomocą automatu komórkowego, wedle wskazówek z wykładu. Automat ten działa na dwuwymiarowej siatce, gdzie każda komórka może znajdować się w jednym z dwóch stanów: aktywnym lub nieaktywnym (0 - nieaktywna, czarna lub 1 - aktywna, biała). Głównym celem zadania było przygotowanie analizy ewolucji układu w formie graficznej oraz wykresów gęstości plam od czasu (iteracji modelu). Analiza przeprowadzona została dla planszy pierwotnie wypełnionej losowymi wartościami, które wedle przyjętych zasad dotyczących rozmnażania się bądź umierania komórek zgodnie z wynikiem sumy sąsiadów komórki (wraz z komórką), dążą do połączenia się i stworzenia plam.
+
+
+
+## Kod programu
+
+```python
+
 import pygame  
 import numpy as np  
 import matplotlib.pyplot as plt
@@ -103,3 +119,48 @@ def main():
 
 if __name__ == "__main__":
     main()  
+
+
+```
+
+
+## Analiza wyników - Rozkład gęstości
+
+W moim kodzie gęstość w rozkładzie obliczana jest jako średnia wartość siatki, co odpowiada średniej liczbie aktywnych komórek (o wartości 1 - kolor biały) na całej planszy.
+
+Przeprowadziłem dwie próby, by zaprezentować losowość układu i jego faktyczną umiejętność do formowania plam, wychodząc z początkowych założeń i z losoweo wypełnionej planszy początkowej.
+
+### Próba nr. 1
+#### Snapshoty układu
+
+![Snapshot-1](Snapshots\Próba-1\1.png)
+
+![Snapshot-2](Snapshots\Próba-1\2.png)
+
+![Snapshot-3](Snapshots\Próba-1\3.png)
+
+#### Rozkład gęstości tego układu
+
+![Rozkład-1](Snapshots\Próba-1\Figure_1.png)
+
+Jak możemy zauważyć dla tego przypadku, plamy zaczęły się formować z czarnych, martwych komórek, co skutkowało wzrostem gęstości wraz ze wzrostem iteracji, który byłby w takiej sytuacji oczekiwanym wynikiem.
+
+### Próba nr. 2
+#### Snapshoty układu
+
+![Snapshot-1](Snapshots\Próba-2\1.png)
+
+![Snapshot-2](Snapshots\Próba-2\2.png)
+
+![Snapshot-3](Snapshots\Próba-2\3.png)
+
+#### Rozkład gęstości tego układu
+
+![Rozkład-1](Snapshots\Próba-2\Figure_2.png)
+
+Tutaj mamy analogiczną sytuację dla drugiego, skrajnego przypadku, gdzie tym razem plamy zaczęły się formować z komórek żywych, co skutkowało stopniowym zmniejszaniem się gęstości układu (komórek żywych). W takim wypadku mozemy stwierdzić, że kod działa prawidłowo, wedle przyjętych założeń i w pełni losowo, co za każdym razem może stworzyć nam inne, ciekawe struktury.
+
+## Wnioski
+
+Podsumowując, udało się uzyskać korzystne wyniki i potwierdzić działanie programu, jak i przydatność wykorzystania automatów komórkowych do symulacji cieakwych układów. Warto zaznaczyć, że wyniki z obu prób podkreślają znaczący wpływ początkowego rozkładu aktywnych i nieaktywnych komórek na dalszą ewolucję układu. To może prowadzić do wniosku, że w systemach opartych na automatach komórkowych, takich jak ten, warunki początkowe mają kluczowe znaczenie dla przewidywania długoterminowego zachowania systemu.
+
