@@ -3,7 +3,7 @@ import numpy as np
 import matplotlib.pyplot as plt  
 
 # Ustawienia parametrów wyświetlania
-width, height = 1000, 1000  # Definicja szerokości i wysokości okna Pygame
+width, height = 600, 600  # Definicja szerokości i wysokości okna Pygame
 rows, cols = 100, 100  # Definicja liczby wierszy i kolumn w siatce automatu komórkowego
 cell_size = width // cols, height // rows  # Obliczenie rozmiaru każdej komórki w siatce
 black = (0, 0, 0)  
@@ -12,12 +12,12 @@ white = (255, 255, 255)
 # Inicjalizacja Pygame i okna wyświetlania
 pygame.init()  
 screen = pygame.display.set_mode((width, height))  
-pygame.display.set_caption("Patterns")  
+pygame.display.set_caption("Game of Life")  
 
-def create_grid():
-    """Tworzenie nowej siatki z losowymi stanami początkowymi."""
-    # Losowe inicjowanie siatki zerami i jedynkami, gdzie 0 reprezentuje nieaktywną komórkę, a 1 aktywną komórkę
-    return np.random.choice([0, 1], size=(rows, cols))
+def create_grid(p0=0.1):
+    """Tworzenie nowej siatki z losowymi stanami początkowymi oraz z zadanym prawdopodobieństwem p0."""
+    return np.random.choice([0, 1], size=(rows, cols), p=[1-p0, p0])
+
 
 def draw_grid(current_grid, prev_grid):
     """Rysowanie siatki, optymalizacja poprzez przerysowywanie tylko zmienionych komórek."""
@@ -35,7 +35,7 @@ def update_grid(grid):
     new_grid = grid.copy()  # Tworzenie kopii bieżącej siatki do przechowywania nowych stanów
     for row in range(rows):
         for col in range(cols):
-            # Obliczanie całkowitej liczby aktywnych sąsiadów wokół bieżącej komórki
+            # Obliczanie całkowitej liczby aktywnych sąsiadów wokół bieżącej komórki (bez aktualnej komórki)
             total = sum([grid[(row + i) % rows][(col + j) % cols] for i in range(-1, 2) for j in range(-1, 2)]) - grid[row][col]
             
             # Stosowanie reguł automatu komórkowego do określenia następnego stanu komórki
@@ -51,9 +51,9 @@ def update_grid(grid):
     return new_grid  
 
 def main():
-    current_grid = create_grid()  # Inicjowanie siatki losowymi stanami
+    current_grid = create_grid(0.5)  # Inicjowanie siatki losowymi stanami
     prev_grid = np.zeros((rows, cols))  # Inicjowanie poprzedniego stanu siatki dla porównania (początkowo same zera)
-    running = True  # Ustawienie flagi kontynuacji symulacji
+    running = True  
 
     # Ustawienie wykresu dystrybucji gęstości za pomocą Matplotlib
     plt.ion()  # Włączenie trybu interaktywnego rysowania
@@ -83,9 +83,9 @@ def main():
         if iteration % 10 == 0:  # Aktualizacja wykresu co 10 iteracji dla efektywności
             ax.clear()  # Czyszczenie poprzedniego wykresu
             ax.plot(densities)  # Rysowanie nowych wartości gęstości
-            ax.set_title('Rozkład gęstości w czasie')  # Resetowanie tytułu (usuniętego przez ax.clear())
-            ax.set_xlabel('Iteracja')  # Resetowanie etykiety osi X
-            ax.set_ylabel('Gęstość')  # Resetowanie etykiety osi Y
+            ax.set_title('Rozkład gęstości w czasie', fontsize = 16)  # Resetowanie tytułu (usuniętego przez ax.clear())
+            ax.set_xlabel('Iteracja', fontsize = 12)  # Resetowanie etykiety osi X
+            ax.set_ylabel('Gęstość', fontsize = 12)  # Resetowanie etykiety osi Y
             plt.pause(0.01)  # Krótka pauza, aby zaktualizować wykres
 
         iteration += 1  # Inkrementacja licznika iteracji
