@@ -43,6 +43,7 @@ def update_grid(grid):
                                           for y in range(-1, 2)])
 
             # Zasady przejścia z uwzględnieniem dostosowanej sumy
+            # Tutaj adnotacja - pierwotny problem występował we wzorze na sumę, gdzie sumowałem bez stanu komórki w środku (otoczonej sąsiadami) oraz ze zwykłym niedopatrzeniem w zbiorach gdzie zdublowałem liczby.
             if total_active_neighbors in {0, 1, 2, 3, 5}:
                 new_grid[i][j] = 0
             elif total_active_neighbors in {4, 6, 7, 8, 9}:

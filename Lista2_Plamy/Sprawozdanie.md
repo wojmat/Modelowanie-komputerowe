@@ -1,4 +1,4 @@
-# Sprawozdanie z listy 1 - Automat komórkowy
+# Sprawozdanie z listy 1 - Automat komórkowy - Plamy
 
 # Mateusz Wojteczek
 
@@ -6,7 +6,7 @@
 
 ## Wstęp
 
-Celem tej pracy było zaprojektowanie i stworzenie programu komputerowego symulującego ewolucję plam za pomocą automatu komórkowego, wedle wskazówek z wykładu. Automat ten działa na dwuwymiarowej siatce, gdzie każda komórka może znajdować się w jednym z dwóch stanów: aktywnym lub nieaktywnym (0 - nieaktywna, czarna lub 1 - aktywna, biała). Głównym celem zadania było przygotowanie analizy ewolucji układu w formie graficznej oraz wykresów gęstości plam od czasu (iteracji modelu). Analiza przeprowadzona została dla dwóch różnych liczb wierszy i kolumn w siatce automatu komórkowego, co pozwoliło na obserwację dynamiki systemu w zależności od wielkości początkowej każdej komórki w siatce.
+Celem tej pracy było zaprojektowanie i stworzenie programu komputerowego symulującego ewolucję plam za pomocą automatu komórkowego, wedle wskazówek z wykładu. Automat ten działa na dwuwymiarowej siatce, gdzie każda komórka może znajdować się w jednym z dwóch stanów: aktywnym lub nieaktywnym (0 - nieaktywna, czarna lub 1 - aktywna, biała). Głównym celem zadania było przygotowanie analizy ewolucji układu w formie graficznej oraz wykresów gęstości plam od czasu (iteracji modelu). Analiza przeprowadzona została dla planszy pierwotnie wypełnionej losowymi wartościami, które wedle przyjętych zasad dotyczących rozmnażania się bądź umierania komórek zgodnie z wynikiem sumy sąsiadów komórki (wraz z komórką), dążą do połączenia się i stworzenia plam.
 
 
 
@@ -16,10 +16,10 @@ Celem tej pracy było zaprojektowanie i stworzenie programu komputerowego symulu
 
 import pygame  
 import numpy as np  
-import matplotlib.pyplot as plt  
+import matplotlib.pyplot as plt
 
 # Ustawienia parametrów wyświetlania
-width, height = 1000, 1000  # Definicja szerokości i wysokości okna Pygame
+width, height = 600, 600  # Definicja szerokości i wysokości okna Pygame
 rows, cols = 100, 100  # Definicja liczby wierszy i kolumn w siatce automatu komórkowego
 cell_size = width // cols, height // rows  # Obliczenie rozmiaru każdej komórki w siatce
 black = (0, 0, 0)  
@@ -46,25 +46,32 @@ def draw_grid(current_grid, prev_grid):
                 # Rysowanie komórki jako prostokąta na ekranie Pygame w określonym kolorze
                 pygame.draw.rect(screen, color, (col * cell_size[0], row * cell_size[1], cell_size[0], cell_size[1]))
 
-def update_grid(grid):
-    """Aktualizacja siatki na podstawie reguł automatu komórkowego."""
-    new_grid = grid.copy()  # Tworzenie kopii bieżącej siatki do przechowywania nowych stanów
-    for row in range(rows):
-        for col in range(cols):
-            # Obliczanie całkowitej liczby aktywnych sąsiadów wokół bieżącej komórki
-            total = sum([grid[(row + i) % rows][(col + j) % cols] for i in range(-1, 2) for j in range(-1, 2)]) - grid[row][col]
-            
-            # Stosowanie reguł automatu komórkowego do określenia następnego stanu komórki
-            if grid[row][col] == 1:  # Jeśli komórka jest obecnie aktywna
-                # Komórka staje się nieaktywna, jeśli ma mniej niż 2 lub więcej niż 3 aktywnych sąsiadów (przeludnienie lub osamotnienie)
-                if total < 2 or total > 3:
-                    new_grid[row][col] = 0
-            else:  
-                # Komórka staje się aktywna, jeśli ma dokładnie 3 aktywnych sąsiadów (rozmnażanie)
-                if total == 3:
-                    new_grid[row][col] = 1
 
-    return new_grid  
+def update_grid(grid):
+    N = len(grid)
+    new_grid = np.zeros((N, N), dtype=int)  
+
+    for i in range(N):
+        for j in range(N):
+            # Obliczanie całkowitej liczby sąsiadujących aktywnych komórek wokół bieżącej komórki,
+            # uwzględniając tym razem także stan samej komórki.
+            total_active_neighbors = sum([grid[(i + x) % N][(j + y) % N] for x in range(-1, 2) 
+                                          for y in range(-1, 2)])
+
+            # Zasady przejścia z uwzględnieniem dostosowanej sumy
+            # Tutaj adnotacja - pierwotny problem występował we wzorze na sumę, gdzie sumowałem bez stanu komórki w środku (otoczonej sąsiadami) oraz ze zwykłym niedopatrzeniem w zbiorach gdzie zdublowałem liczby.
+            if total_active_neighbors in {0, 1, 2, 3, 5}:
+                new_grid[i][j] = 0
+            elif total_active_neighbors in {4, 6, 7, 8, 9}:
+                new_grid[i][j] = 1
+            else:
+                # Jeśli suma nie należy do żadnego z tych zbiorów, stan komórki pozostaje niezmieniony
+                new_grid[i][j] = grid[i][j]
+
+    return new_grid
+
+
+
 
 def main():
     current_grid = create_grid()  # Inicjowanie siatki losowymi stanami
@@ -113,25 +120,47 @@ def main():
 if __name__ == "__main__":
     main()  
 
+
 ```
 
 
-## Analiza wyników
-### Rozkład gęstości od czasu dla rozmiaru siatki 60x60
+## Analiza wyników - Rozkład gęstości
 
-![Rozkład gęstości od czasu dla rozmiaru siatki 60x60](60x60.png)
+W moim kodzie gęstość w rozkładzie obliczana jest jako średnia wartość siatki, co odpowiada średniej liczbie aktywnych komórek (o wartości 1 - kolor biały) na całej planszy.
 
-W przypadku podjęcia próby analizy wykresu sporządzonego dla rozmiaru siatki 60 x 60 możemy zauważyć, że przede wszystkim rozkład ten jest dość chaotyczny, występują nagłe spadki ilości, a następnie rozmnażania komórek, jednakże wedle oczekiwań stopniowo maleje aż do całkowitego wygaszenia i unormowania się przy około 1700 iteracjach. Zachowanie to było jak najbardziej oczekiwane, przy przyjętych założeniach automatu komórkowego.
+Przeprowadziłem dwie próby, by zaprezentować losowość układu i jego faktyczną umiejętność do formowania plam, wychodząc z początkowych założeń i z losoweo wypełnionej planszy początkowej.
 
-### Rozkład gęstości od czasu dla rozmiaru siatki 100x100
+### Próba nr. 1
+#### Snapshoty układu
 
-![Rozkład gęstości od czasu dla rozmiaru siatki 100x100](100x100.png)
+![Snapshot-1](Snapshots\Próba-1\1.png)
 
-Natomiast w tym przypadku, mimo nadal występującej tendencji spadkowej, widzimy, że układ ten jest znacznie mniej chaotyczny, nie zauważymy tu nagłych spadków i wzrostów jak w poprzednim wykresie, jest zdecydowanie bardziej unormowany. Jednakże całkowite wygaszenie i unormowanie występuje dopiero po ponad 2000 iteracjach, także potrzebuje on więcej czasu dla takiego rozmiaru siatki. 
+![Snapshot-2](Snapshots\Próba-1\2.png)
 
+![Snapshot-3](Snapshots\Próba-1\3.png)
 
+#### Rozkład gęstości tego układu
+
+![Rozkład-1](Snapshots\Próba-1\Figure_1.png)
+
+Jak możemy zauważyć dla tego przypadku, plamy zaczęły się formować z czarnych, martwych komórek, co skutkowało wzrostem gęstości wraz ze wzrostem iteracji, który byłby w takiej sytuacji oczekiwanym wynikiem.
+
+### Próba nr. 2
+#### Snapshoty układu
+
+![Snapshot-1](Snapshots\Próba-2\1.png)
+
+![Snapshot-2](Snapshots\Próba-2\2.png)
+
+![Snapshot-3](Snapshots\Próba-2\3.png)
+
+#### Rozkład gęstości tego układu
+
+![Rozkład-1](Snapshots\Próba-2\Figure_2.png)
+
+Tutaj mamy analogiczną sytuację dla drugiego, skrajnego przypadku, gdzie tym razem plamy zaczęły się formować z komórek żywych, co skutkowało stopniowym zmniejszaniem się gęstości układu (komórek żywych). W takim wypadku mozemy stwierdzić, że kod działa prawidłowo, wedle przyjętych założeń i w pełni losowo, co za każdym razem może stworzyć nam inne, ciekawe struktury.
 
 ## Wnioski
-Praca ta pokazuje, że automaty komórkowe mogą być użytecznym narzędziem do modelowania złożonych systemów dynamicznych, takich jak ewolucja plam. Układ zachowywał się wedle oczekiwań i przyjętych założeń, co pokazują wykresy oraz nagrania ewolucji graficznej układu, które umieściłem w folderze ze sprawozdaniem.
 
+Podsumowując, udało się uzyskać korzystne wyniki i potwierdzić działanie programu, jak i przydatność wykorzystania automatów komórkowych do symulacji cieakwych układów. Warto zaznaczyć, że wyniki z obu prób podkreślają znaczący wpływ początkowego rozkładu aktywnych i nieaktywnych komórek na dalszą ewolucję układu. To może prowadzić do wniosku, że w systemach opartych na automatach komórkowych, takich jak ten, warunki początkowe mają kluczowe znaczenie dla przewidywania długoterminowego zachowania systemu.
 
