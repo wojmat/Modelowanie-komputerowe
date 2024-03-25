@@ -1,4 +1,4 @@
-# Sprawozdanie z listy 1 - Automat komórkowy
+# Sprawozdanie z listy 2 - Game of Life
 
 # Mateusz Wojteczek
 
@@ -6,7 +6,7 @@
 
 ## Wstęp
 
-Celem tej pracy było zaprojektowanie i stworzenie programu komputerowego symulującego Game of Life wedle Conway'a, która jest szczególnym przypadkiem automatu komórkowego. Gra w Życie działa na zasadzie prostej symulacji, w której każda komórka na dwuwymiarowej siatce może znajdować się w jednym z dwóch stanów: aktywnym (żywa) lub nieaktywnym (martwa)
+Celem tej pracy było zaprojektowanie i stworzenie programu komputerowego symulującego Game of Life wedle Conway'a, która jest szczególnym przypadkiem automatu komórkowego. Gra w Życie działa na zasadzie prostej symulacji, w której każda komórka na dwuwymiarowej siatce może znajdować się w jednym z dwóch stanów: aktywnym (żywa) lub nieaktywnym (martwa).
 Stan komórki w następnym kroku czasowym zależy od liczby jej aktywnych sąsiadów. Celem symulacji jest obserwacja ewolucji układu początkowego, który jest generowany losowo z określonym prawdopodobieństwem początkowej aktywacji komórek p0.
 
 
@@ -180,10 +180,19 @@ Tutaj natomiast występowało całkowite wygaszenie układu już na samym począ
 
 Dla obydwu skrajnych przypadków (p0 równe 5% bądź 95%) wyniki były absolutnie przewidywalne oraz oczekiwane, komórki umierały z osamotnienia bądź z przeludnienia, całkowicie wedle zasad programu.
 
+## Badanie wyników pomiaru gęstości dla różnej wielkości ukladu L
 
+Dla przyjętego p0 równego 30%, wielkości próy N równej 100, ilości iteracji równej 1000 obliczałem błąd standardowy dla różnych wielkości układu L = [10, 100, 200, 500, 1000]
 
+### Wyniki 
+
+![Wyniki](Zadanie_3/wyniki.PNG)
+
+Jak widać na powyższym obrazku, układu L = 1000 nie udało mi się obliczyć, natomiast co do reszty wyników można zauważyć pewne trendy dotyczące średniej gęstości żywych komórek i błędu standardowego średniej. Średnia gęstość żywych komórek pozostaje dość stabilna w całym zakresie rozmiarów planszy, oscylując wokół wartości 0.043. To wskazuje na to, że niezależnie od rozmiaru planszy, po ustalonym czasie T max, układ osiąga podobny poziom gęstości żywych komórek.
+
+Co do błędu standardowego, wydaje się on maleć wraz ze wzrostem rozmiaru planszy. Dla L = 10, błąd standardowy wynosi 0.003949, co jest relatywnie wysoką wartością, wskazując na większą zmienność w wynikach symulacji. Dla L = 500, błąd standardowy znacznie się zmniejsza do wartości 0.000230, co sugeruje mniejszą zmienność i większą precyzję w obliczeniach średniej gęstości żywych komórek dla większych plansz.
 
 ## Wnioski
-Praca ta pokazuje, że automaty komórkowe mogą być użytecznym narzędziem do modelowania złożonych systemów dynamicznych, takich jak ewolucja plam. Układ zachowywał się wedle oczekiwań i przyjętych założeń, co pokazują wykresy oraz nagrania ewolucji graficznej układu, które umieściłem w folderze ze sprawozdaniem.
+Podczas analizy symulacji Gry w Życie Conway'a dla różnych rozmiarów planszy (L = 10, 100, 200, 500), przy ustalonym prawdopodobieństwie początkowym p0 i liczbie iteracji T = 1000, zaobserwowałem kluczowe tendencje. Po pierwsze, średnia gęstość żywych komórek utrzymywała się na stabilnym poziomie około 0.043 przez cały zakres rozmiarów planszy, co sugeruje, że po dłuższym czasie symulacji, niezależnie od rozmiaru planszy, układ osiąga stabilny stan gęstości żywych komórek. Z drugiej strony, błąd standardowy średniej wykazywał tendencję do zmniejszania się wraz ze wzrostem rozmiaru planszy, wskazując na mniejszą zmienność i większą precyzję w wynikach dla większych plansz. Ta obserwacja wskazuje, że większe układy są mniej podatne na efekty brzegowe co prowadzi do bardziej stabilnych i powtarzalnych wyników symulacji. Wyniki te podkreślają znaczenie wyboru odpowiedniego rozmiaru planszy w analizie dynamiki i stabilności układów symulowanych w ramach Gry w Życie Conway'a.
 
 

@@ -31,19 +31,19 @@ def perform_experiments(sizes, p0, Tmax, N):
     for size in sizes:
         densities = [run_simulation(size, p0, Tmax) for _ in range(N)]
         mean_density = np.mean(densities)
-        se = scipy.stats.sem(densities)  # Obliczanie błędu standardowego
+        se = scipy.stats.sem(densities) if N > 1 else 0 # Obliczanie błędu standardowego
         results[size] = mean_density
         errors[size] = se
 
     return results, errors
 
-# Parametry eksperymentu
-sizes = [10, 100, 200, 500, 1000]
-p0 = 0.6
+# Parametry badania
+sizes = [10]
+p0 = 0.3
 Tmax = 1000
 N = 100
 
-# Przeprowadzenie eksperymentów
+# Przeprowadzenie badań
 results, errors = perform_experiments(sizes, p0, Tmax, N)
 
 # Wyświetlenie wyników
