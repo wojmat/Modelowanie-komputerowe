@@ -32,7 +32,7 @@ def oblicz_sile_grawitacji(x, y, m):
     return Fx, Fy
 
 # Analiza błędu dla różnych wartości Delta t
-dt_values = np.arange(0.000001, 0.01, 0.000001)
+dt_values = np.arange(0.000001, 0.1, 0.001)
 errors = []
 
 for dt in dt_values:
