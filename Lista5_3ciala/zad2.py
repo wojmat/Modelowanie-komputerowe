@@ -1,73 +1,71 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-# Inicjalizacja stałych
-N = 2
-G = 1
-m = np.ones(N)  # masy
-R = 1  # promień orbity
+# Stałe i parametry symulacji
+G = 1  # Stała grawitacyjna
+m1 = m2 = 1.0  # Masy ciał są równe 1
+R = 1  # Zakładamy, że odległość między ciałami na początku to 1
+v_range = np.linspace(0.01, 1, 200) 
+dt = 0.001  # Większy krok czasowy 
+T = 100  
 
-# Inicjalizacja położeń i prędkości
-x = np.zeros(N)
-y = np.zeros(N)
-vx = np.zeros(N)
-vy = np.zeros(N)
+# Funkcja obliczająca siłę grawitacji
+def oblicz_sile_grawitacji(m1, m2, r):
+    return G * m1 * m2 / r**2
 
-x[1] = R
-vy[1] = np.sqrt(G * m[0] / R)
+# Symulacja dla różnych prędkości początkowych
+d1_d2_ratios = []
+orbits = []
 
-# Funkcja do obliczania siły grawitacji
-def oblicz_sile_grawitacji(x, y, m):
-    Fx = np.zeros(N)
-    Fy = np.zeros(N)
-    for i in range(N):
-        for j in range(N):
-            if i != j:
-                dx = x[j] - x[i]
-                dy = y[j] - y[i]
-                r = np.sqrt(dx**2 + dy**2)
-                Fg = G * m[i] * m[j] / r**3
-                Fx[i] += Fg * dx
-                Fy[i] += Fg * dy
-    return Fx, Fy
+for v in v_range:
+    x = np.array([0.0, R])
+    y = np.array([0.0, 0.0])
+    vx = np.array([0.0, 0.0])
+    vy = np.array([-v, v])
 
-# Analiza błędu dla różnych wartości Delta t
-dt_values = np.arange(0.000001, 0.1, 0.001)
-errors = []
+    x_traj, y_traj = [], []
+    for t in np.arange(0, T, dt):
+        r = np.hypot(x[1] - x[0], y[1] - y[0])
+        Fg = oblicz_sile_grawitacji(m1, m2, r)
+        Fx = Fg * (x[1] - x[0]) / r
+        Fy = Fg * (y[1] - y[0]) / r
 
-for dt in dt_values:
-    # Reset pozycji i prędkości
-    x[1] = R
-    y[1] = 0
-    vx[1] = 0
-    vy[1] = np.sqrt(G * m[0] / R)
-    
-    # Symulacja
-    for t in np.arange(0, 10, dt):
-        Fx, Fy = oblicz_sile_grawitacji(x, y, m)
-        for i in range(1, N):  # Pomijamy aktualizację dla i = 0 (ciało nieruchome)
-            vx[i] += Fx[i] / m[i] * dt
-            vy[i] += Fy[i] / m[i] * dt
-            x[i] += vx[i] * dt
-            y[i] += vy[i] * dt
+        vx[1] += Fx / m2 * dt
+        vy[1] += Fy / m2 * dt
+        x[1] += vx[1] * dt
+        y[1] += vy[1] * dt
 
-    # Obliczanie błędu
-    r_final = np.sqrt((x[1] - x[0])**2 + (y[1] - y[0])**2)
-    error = abs(R - r_final)
-    errors.append(error)
-# Wykres błędu w funkcji Delta t z logarytmiczną skalą osi X
-plt.plot(dt_values, errors)
-plt.xscale('log')  # Ustawienie skali logarytmicznej dla osi X
-plt.yscale('log')
-plt.xlabel('Delta t (logarytmicznie)')
-plt.ylabel('Błąd')
-plt.title('Błąd w funkcji kroku czasowego Delta t (skala logarytmiczna)')
+        x_traj.append(x[1])
+        y_traj.append(y[1])
+
+    orbits.append((x_traj, y_traj))
+
+    d1 = max(x_traj) - min(x_traj)
+    d2 = max(y_traj) - min(y_traj)
+    d1_d2_ratios.append(d1 / d2 if d2 else 1)
+
+# Rysowanie wykresów
+plt.figure(figsize=(8, 12))
+
+# Wykres orbity dla każdej prędkości początkowej
+plt.subplot(2, 1, 1)
+for x_traj, y_traj in orbits:
+    plt.plot(x_traj, y_traj)
+plt.title('Orbity ciał')
+plt.xlabel('x')
+plt.ylabel('y')
+plt.xlim(-2, 2)
+plt.ylim(-2, 2)
+plt.gca().set_aspect('equal', adjustable='box')
+
+# Wykres stosunku d1/d2 w funkcji prędkości początkowej v
+plt.subplot(2, 1, 2)
+plt.plot(v_range, d1_d2_ratios, 'o-', markersize=3)
+plt.axvline(np.sqrt(G * (m1 + m2) / R), color='r', linestyle='--', label='Teoretyczna v dla okręgu')
+plt.title('Stosunek d1/d2 w zależności od prędkości początkowej')
+plt.xlabel('Prędkość początkowa v')
+plt.ylabel('Stosunek d1/d2')
+plt.legend()
+plt.grid(True)
+plt.tight_layout()
 plt.show()
-
-# Znalezienie maksymalnej wartości Delta t dla błędu mniejszego niż 10^-5
-indeksy = np.where(np.array(errors) < 1e-5)[0]
-if indeksy.size > 0:  # Sprawdzenie, czy znaleziono jakiekolwiek odpowiednie wartości Delta t
-    max_dt = dt_values[indeksy[-1]]
-    print(f"Maksymalna wartość Delta t z błędem mniejszym niż 10^-5: {max_dt}")
-else:
-    print("Nie znaleziono wartości Delta t z błędem mniejszym niż 10^-5 w podanym zakresie.")
