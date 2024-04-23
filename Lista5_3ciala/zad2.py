@@ -1,71 +1,116 @@
 import numpy as np
 import matplotlib.pyplot as plt
+import os
 
-# Stałe i parametry symulacji
+class Point:
+    def __init__(self, m, x, y, vx, vy):
+        self.m = m  # Masa punktu
+        self.x = x  # Pozycja x punktu
+        self.y = y  # Pozycja y punktu
+        self.vx = vx  # Prędkość w kierunku x
+        self.vy = vy  # Prędkość w kierunku y
+
+def gravitational_force(p1, p2, G):
+    rx = p2.x - p1.x  # Różnica pozycji x między punktami
+    ry = p2.y - p1.y  # Różnica pozycji y między punktami
+    distance_squared = rx ** 2 + ry ** 2  # Kwadrat odległości między punktami
+    if distance_squared == 0:
+        return (0, 0)  # Zapobiegaj dzieleniu przez zero, jeśli oba punkty się pokrywają
+    distance_cubed = np.sqrt(distance_squared ** 3)  # Trzecia potęga odległości
+    fx = G * p1.m * p2.m * rx / distance_cubed  # Składowa siły grawitacyjnej w kierunku x
+    fy = G * p1.m * p2.m * ry / distance_cubed  # Składowa siły grawitacyjnej w kierunku y
+    return (fx, fy)
+
+# Ustawienia symulacji
 G = 1  # Stała grawitacyjna
-m1 = m2 = 1.0  # Masy ciał są równe 1
-R = 1  # Zakładamy, że odległość między ciałami na początku to 1
-v_range = np.linspace(0.01, 1, 200) 
-dt = 0.001  # Większy krok czasowy 
-T = 100  
+Vs = np.arange(0.01, 1, 0.01)  # Zakres prędkości początkowych
+dt = 0.001  # Krok czasowy
+t = 10  # Całkowity czas symulacji
+steps = int(t / dt)  # Liczba kroków
 
-# Funkcja obliczająca siłę grawitacji
-def oblicz_sile_grawitacji(m1, m2, r):
-    return G * m1 * m2 / r**2
+# Katalog do zapisywania danych o pozycji i wykresów
+directory = 'pozycje'
+if not os.path.exists(directory):
+    os.makedirs(directory)
 
-# Symulacja dla różnych prędkości początkowych
-d1_d2_ratios = []
-orbits = []
+plot_directory = 'wykresy'
+if not os.path.exists(plot_directory):
+    os.makedirs(plot_directory)
 
-for v in v_range:
-    x = np.array([0.0, R])
-    y = np.array([0.0, 0.0])
-    vx = np.array([0.0, 0.0])
-    vy = np.array([-v, v])
+# Obliczenie teoretycznej v dla orbity kołowej
+m1 = m2 = 1  # Masy
+v_theoretical = np.sqrt((m2**2) / (m1 + m2))
 
-    x_traj, y_traj = [], []
-    for t in np.arange(0, T, dt):
-        r = np.hypot(x[1] - x[0], y[1] - y[0])
-        Fg = oblicz_sile_grawitacji(m1, m2, r)
-        Fx = Fg * (x[1] - x[0]) / r
-        Fy = Fg * (y[1] - y[0]) / r
+ratios = []  # Lista przechowująca stosunki długości d1 do d2
+for v in Vs:
+    points = [Point(1, 0, 0, 0, -v), Point(1, 1, 0, 0, v)]  # Utworzenie dwóch punktów
+    x1_positions = []  # Lista przechowująca pozycje x pierwszego punktu
+    y1_positions = []  # Lista przechowująca pozycje y pierwszego punktu
+    position_data = []  # Lista przechowująca dane o pozycji
 
-        vx[1] += Fx / m2 * dt
-        vy[1] += Fy / m2 * dt
-        x[1] += vx[1] * dt
-        y[1] += vy[1] * dt
+    for i in range(steps):
+        for p in range(len(points)):
+            total_fx = total_fy = 0
+            for s in range(len(points)):
+                if p != s:
+                    fx, fy = gravitational_force(points[p], points[s], G)
+                    total_fx += fx
+                    total_fy += fy
 
-        x_traj.append(x[1])
-        y_traj.append(y[1])
+            ax = total_fx / points[p].m
+            ay = total_fy / points[p].m
+            points[p].vx += ax * dt
+            points[p].vy += ay * dt
+            points[p].x += points[p].vx * dt
+            points[p].y += points[p].vy * dt
 
-    orbits.append((x_traj, y_traj))
+        x1_positions.append(points[0].x)
+        y1_positions.append(points[0].y)
+        position_data.append(f"{points[0].x} {points[0].y} {points[1].x} {points[1].y}")
 
-    d1 = max(x_traj) - min(x_traj)
-    d2 = max(y_traj) - min(y_traj)
-    d1_d2_ratios.append(d1 / d2 if d2 else 1)
+    # Zapis danych do pliku na koniec symulacji
+    file_name = f"{directory}/pozycje_v_{v:.2f}.txt"
+    with open(file_name, 'w') as file:
+        file.write("\n".join(position_data))
 
-# Rysowanie wykresów
-plt.figure(figsize=(8, 12))
+    # Obliczenie i zapisanie stosunków długości d1 do d2 dla wykresu
+    d1 = max(x1_positions) - min(x1_positions)
+    d2 = max(y1_positions) - min(y1_positions)
+    ratio = d1 / d2
+    ratios.append(ratio)
 
-# Wykres orbity dla każdej prędkości początkowej
-plt.subplot(2, 1, 1)
-for x_traj, y_traj in orbits:
-    plt.plot(x_traj, y_traj)
-plt.title('Orbity ciał')
-plt.xlabel('x')
-plt.ylabel('y')
-plt.xlim(-2, 2)
-plt.ylim(-2, 2)
-plt.gca().set_aspect('equal', adjustable='box')
-
-# Wykres stosunku d1/d2 w funkcji prędkości początkowej v
-plt.subplot(2, 1, 2)
-plt.plot(v_range, d1_d2_ratios, 'o-', markersize=3)
-plt.axvline(np.sqrt(G * (m1 + m2) / R), color='r', linestyle='--', label='Teoretyczna v dla okręgu')
-plt.title('Stosunek d1/d2 w zależności od prędkości początkowej')
-plt.xlabel('Prędkość początkowa v')
-plt.ylabel('Stosunek d1/d2')
+# Wykres stosunku długości d1 do d2
+plt.figure(figsize=(10, 5))
+plt.plot(Vs, ratios, label='Stosunek d1/d2')
+plt.axvline(x=v_theoretical, color='r', linestyle='--', label=f'Teoretyczna v dla orbity kołowej = {v_theoretical:.2f}')
+plt.title("Stosunek długości d1/d2 w funkcji prędkości początkowej v")
+plt.xlabel("Prędkość początkowa v")
+plt.ylabel("Stosunek długości d1/d2")
 plt.legend()
 plt.grid(True)
-plt.tight_layout()
-plt.show()
+plot_path = f"{plot_directory}/wykres_stosunek_d1_d2.png"
+plt.savefig(plot_path)
+plt.close()
+
+# Generowanie i zapisywanie wykresów dla wszystkich trajektorii po zakończeniu wszystkich symulacji
+for v in Vs:
+    file_name = f"{directory}/pozycje_v_{v:.2f}.txt"
+    x1, y1, x2, y2 = [], [], [], []
+    with open(file_name, 'r') as file:
+        for line in file:
+            positions = list(map(float, line.split()))
+            x1.append(positions[0])
+            y1.append(positions[1])
+            x2.append(positions[2])
+            y2.append(positions[3])
+
+    plt.figure(figsize=(10, 5))
+    plt.plot(x1, y1, label='Ciało 1')
+    plt.plot(x2, y2, label='Ciało 2')
+    plt.title(f"Trajektoria dla prędkości początkowej v={v:.2f}")
+    plt.xlabel("X")
+    plt.ylabel("Y")
+    plt.legend()
+    plot_path = f"{plot_directory}/trajektoria_v_{v:.2f}.png"
+    plt.savefig(plot_path)  # Zapisz wykres
+    plt.close()
