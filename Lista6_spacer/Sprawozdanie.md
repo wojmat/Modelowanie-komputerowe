@@ -64,6 +64,28 @@ Operacja modulo: Histogram dla tej metody pokazał większe fluktuacje w liczbie
 
 Analiza pokazała, że algorytm Mersenne-Twister jest bardziej odpowiedni dla zastosowań, które wymagają wysokiej jakości równomiernego rozkładu liczb losowych. Prosty generator oparty na operacji modulo może być mniej efektywny w przypadkach, gdy równomierność rozkładu jest kluczowa, jak np. w modelowaniu statystycznym czy symulacjach. Wyniki te podkreślają znaczenie wyboru odpowiedniego generatora liczb losowych w zależności od wymagań konkretnego zastosowania.
 
+![Zadanie 1](Zadanie_1/chikwadrat.png)
+
+Mersenne-Twister:
+
+Statystyka chi-kwadrat: 9836.28
+P-wartość: 0.8754
+
+Operacja Modulo:
+
+Statystyka chi-kwadrat: 9836.66
+P-wartość: 0.8748
+Interpretacja
+Statystyka Chi-Kwadrat:
+
+Obie wartości statystyki chi-kwadrat są zbliżone i dość wysokie. Wysoka wartość chi-kwadrat może sugerować, że istnieją różnice między oczekiwanymi a rzeczywistymi rozkładami, jednak to interpretacja p-wartości dostarczy pełniejszego obrazu.
+P-wartość:
+
+Obie p-wartości są znacznie powyżej typowego progu istotności statystycznej (0.05), co sugeruje, że nie ma wystarczających dowodów, aby odrzucić hipotezę o równomierności rozkładu liczby wystąpień w kubełkach. Innymi słowy, dane nie wykazują statystycznie istotnych odchyleń od rozkładu równomiernego.
+
+Wyniki wskazują, że zarówno generator Mersenne-Twister, jak i prostszy generator oparty na operacji modulo, produkują dane, które nie różnią się w sposób istotny od równomiernego rozkładu (w kontekście testu chi-kwadrat z zadanymi parametrami). To może być zaskakujące, szczególnie w przypadku prostszego generatora modulo, gdzie moglibyśmy oczekiwać większych nieregularności.
+
+
 ## Zadanie 2
 ### Kod programu
 #### Spacer losowy 2D
@@ -213,8 +235,7 @@ Natomiast w przestrzeni trójwymiarowej trajektoria jest znacznie bardziej rozpr
 
 
 ## Zadanie 3
-### Kod programu
-
+### Kod programu - histogram
 ```python
 import numpy as np
 import matplotlib.pyplot as plt
@@ -239,12 +260,37 @@ plt.grid(True)
 plt.show()
 ```
 
+### Kod programu - scatter plot
+```python
+import numpy as np
+import matplotlib.pyplot as plt
+
+np.random.seed(0)  # Dla powtarzalności wyników
+n_steps = 1000
+n_simulations = 10000
+final_positions = [np.sum(np.random.choice([-1, 1], size=n_steps)) for _ in range(n_simulations)]
+
+# Tworzenie scatter plot
+plt.figure(figsize=(10, 6))
+plt.scatter(range(n_simulations), final_positions, alpha=0.7, c='blue', edgecolors='none', s=10)
+plt.title('Scatter plot końcowych pozycji po 1000 krokach')
+plt.xlabel('Numer symulacji')
+plt.ylabel('Końcowa pozycja')
+plt.grid(True)
+plt.show()
+```
+
 ## Analiza wyników 
 ![Zadanie 3](Zadanie_3/Figure_1.png)
 
 Histogram, który został wygenerowany, wizualnie reprezentuje rozkład końcowych pozycji dziecka po wykonaniu 1000 kroków w jednowymiarowym spacerze losowym, gdzie każdy krok ma równą szansę być wykonanym w lewo (-1) lub w prawo (+1).
 Dziecko ma dużo większe prawdopodobieństwo znalezienia się blisko punktu początkowego, w odległości 1 jednostki, niż w odległości 30 jednostek od punktu startowego. Wyniki te są zgodne z teoretycznym modelem spaceru losowego, gdzie większe odległości są mniej prawdopodobne w wyniku sumowania równie prawdopodobnych, niezależnych kroków. Kształt rozkładu jest zbliżony do gaussowskiego (normalnego), co jest typowym wynikiem sumy dużej liczby losowych, jednakowo rozłożonych zmiennych (Twierdzenie Centralne Graniczne).
+Histogram z kubełkami ustawionymi na parzystych wartościach oznacza, że każdy kubełek (bin) agreguje dane z zakresu wartości, który obejmuje zarówno parzyste, jak i nieparzyste liczby. Na przykład, kubełek dla wartości 0 może obejmować dane od -1 do 1, kubełek dla wartości 2 od 1 do 3, i tak dalej. To pomaga zrozumieć, gdzie dokładnie skupiają się dane.
 
+![Zadanie 3](Zadanie_3/Figure_2.png)
+
+Duże skupienie punktów blisko środka (0) wskazuje, że bardzo prawdopodobne jest, iż dziecko zakończy spacer blisko punktu startowego. To jest zgodne z oczekiwaniami dla symetrycznego spaceru losowego.
+Widzimy również przypadki, w których dziecko kończy w pozycjach odległych, co pokazuje możliwość wystąpienia bardziej ekstremalnych rezultatów w spacerze losowym.
 ## Zadanie 4
 ### Kod programu
 
@@ -326,9 +372,15 @@ print(f"Współczynnik dyfuzji dla 8 kierunków: {D_8}")
 ## Analiza wyników 
 ![Zadanie 5](Zadanie_5/Figure_1.png)
 
-Zmiana liczby kierunków z czterech na osiem nieco zmniejszyła wartość współczynnika dyfuzji. Choć intuituwnie mogłoby się wydawać, że dodanie dodatkowych kierunków ruchu mogłoby zwiększyć dyfuzję, wyniki wskazują na odwrotność:
-    4 kierunki: Ruch jest bardziej bezpośredni i koncentruje się na czterech głównych osiach, co może prowadzić do większego rozproszenia na dłuższe dystanse.
-    8 kierunków: Dodanie przekątnych sprawia, że ścieżka jest bardziej zmienna i potencjalnie bardziej ograniczona do mniejszych obszarów, zmniejszając efektywne rozprzestrzenianie się.
+Wyniki wskazują, że wprowadzenie dodatkowych kierunków (przekątnych) faktycznie zmniejszyło współczynnik dyfuzji. To może wydawać się sprzeczne z intuicją, że więcej kierunków zwiększa możliwości rozprzestrzeniania się, jednak warto zaznaczyć, że wprowadzenie przekątnych zmienia charakterystykę kroku.
+
+Twierdzenie Centralne Graniczne mówi, że suma dużej liczby niezależnych zmiennych losowych dąży do rozkładu normalnego (Gaussa), niezależnie od rozkładu pojedynczej zmiennej. W kontekście eksperymentu:
+
+Ruch w 4 kierunkach może być bardziej przewidywalny i regularny, co prowadzi do większej dyspersji.
+Ruch w 8 kierunkach wprowadza więcej zmienności, ale przesunięcia w każdym kroku są mniej "skuteczne" w osiąganiu dużych odległości od punktu początkowego, co może wydawać się niezgodne z TCL. Jednakże, zgodność z TCL w tym kontekście dotyczy rozkładu pozycji cząsteczki, a nie bezpośrednio wartości współczynnika dyfuzji. TCL sugeruje, że rozkład końcowych lokalizacji cząsteczki (dla dużej liczby kroków) powinien być normalny, co jest prawdopodobnie spełnione w obu przypadkach, lecz nie analizowano tego bezpośrednio.
+
+W przypadku ruchu w 8 kierunkach, krok w przekątnym kierunku (np. północny-wschód) nie oddala się od początku tak bardzo jak krok w jednym z głównych kierunków (północ lub wschód). W przestrzeni 2D przekątne kroki mają mniejszy efektywny zasięg na osiach x i y niż kroki bezpośrednie.
+Dodatkowo, dodanie przekątnych zwiększa szansę "krążenia" cząsteczki w mniejszym obszarze, co zmniejsza jej efektywną dyfuzję.
 
 ## Wnioski
 W ramach Listy 6 udało się przeprowadzić szereg symulacji i analiz modelujących różnorodne scenariusze związane ze spacerami losowymi i ruchem cząsteczek. Zadania te pozwoliły na głębsze zrozumienie dynamiki systemów wielociałowych oraz procesów dyfuzyjnych w różnych warunkach.
