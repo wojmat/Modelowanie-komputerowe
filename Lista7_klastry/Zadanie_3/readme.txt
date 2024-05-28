@@ -1,0 +1,1 @@
+Zadanie zostało zainspirowane i wykonane wraz z wykładem Profesora Macieja Matyki załączonym do listy zadań. Dodatkowe modyfikacje pozwoliły na spełnienie wymagań listy zadań.
