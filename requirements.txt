@@ -1,0 +1,16 @@
+# Computational Physics Simulations - Dependencies
+# Python 3.8+ required
+
+# Core scientific computing
+numpy>=1.20.0
+scipy>=1.6.0
+
+# Visualization
+matplotlib>=3.3.0
+pygame>=2.0.0
+
+# Optional: For future improvements
+# pytest>=6.0.0        # Unit testing
+# black>=21.0          # Code formatting
+# mypy>=0.900          # Type checking
+# jupyter>=1.0.0       # Interactive notebooks
