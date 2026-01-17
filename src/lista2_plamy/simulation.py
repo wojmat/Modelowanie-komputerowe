@@ -257,12 +257,13 @@ class PlamySimulation:
         - Batch processing multiple configurations
         """
         validate_positive(num_steps, "num_steps")
+        progress_interval = max(1, num_steps // 10)
 
         with Timer("Headless simulation", silent=not verbose):
             for step in range(num_steps):
                 self.update_step()
 
-                if verbose and (step + 1) % (num_steps // 10) == 0:
+                if verbose and (step + 1) % progress_interval == 0:
                     percent = 100.0 * (step + 1) / num_steps
                     density = self.grid.get_density()
                     print(f"  Progress: {percent:.0f}% | Density: {density:.3f}")
