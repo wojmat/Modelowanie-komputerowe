@@ -326,13 +326,15 @@ class Timer:
         Simulation took: 5.23s
     """
 
-    def __init__(self, name: str = "Operation"):
+    def __init__(self, name: str = "Operation", silent: bool = False):
         """Initialize timer.
 
         Args:
             name: Name of operation being timed
+            silent: If True, don't print timing results
         """
         self.name = name
+        self.silent = silent
         self.start_time = None
         self.elapsed = None
 
@@ -346,7 +348,8 @@ class Timer:
         """Stop timing and print result."""
         import time
         self.elapsed = time.time() - self.start_time
-        print(f"{self.name} took: {format_time(self.elapsed)}")
+        if not self.silent:
+            print(f"{self.name} took: {format_time(self.elapsed)}")
 
     def get_elapsed(self) -> float:
         """Get elapsed time in seconds.

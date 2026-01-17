@@ -22,7 +22,7 @@ import sys
 # Add parent directory
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
-from .simulation import GameOfLifeSimulation, GameOfLifeConfig
+from lista3_game_of_life.simulation import GameOfLifeSimulation, GameOfLifeConfig
 
 
 class GameOfLifeVisualizer:

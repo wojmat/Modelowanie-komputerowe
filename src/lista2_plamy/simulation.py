@@ -258,7 +258,7 @@ class PlamySimulation:
         """
         validate_positive(num_steps, "num_steps")
 
-        with Timer("Headless simulation") if verbose else Timer.__new__(Timer):
+        with Timer("Headless simulation", silent=not verbose):
             for step in range(num_steps):
                 self.update_step()
 

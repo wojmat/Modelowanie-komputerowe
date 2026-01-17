@@ -1,5 +1,5 @@
-import pygame  
-import numpy as np  
+import pygame
+import numpy as np
 import matplotlib.pyplot as plt  
 
 # Ustawienia parametrów wyświetlania

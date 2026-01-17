@@ -202,7 +202,7 @@ class MonopolySimulation:
         self.board.reset()
         position = 0  # Start at GO
 
-        with Timer("Simulation") if verbose else Timer.__new__(Timer):
+        with Timer("Simulation", silent=not verbose):
             for i in range(num_rolls):
                 # Roll dice
                 die1, die2 = self.roll_dice()

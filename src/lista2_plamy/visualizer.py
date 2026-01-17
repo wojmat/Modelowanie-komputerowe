@@ -32,7 +32,7 @@ import sys
 # Add parent directory to path
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
-from .simulation import PlamySimulation, PlamyConfig
+from lista2_plamy.simulation import PlamySimulation, PlamyConfig
 
 
 class PlamyVisualizer:

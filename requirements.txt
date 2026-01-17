@@ -7,7 +7,7 @@ scipy>=1.6.0
 
 # Visualization
 matplotlib>=3.3.0
-pygame>=2.0.0
+pygame-ce>=2.5.0
 
 # Optional: For future improvements
 # pytest>=6.0.0        # Unit testing
