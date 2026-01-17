@@ -65,6 +65,11 @@ class PlamyVisualizer:
         grid_size = self.config.grid_size
         self.cell_width = self.screen_width // grid_size
         self.cell_height = self.screen_height // grid_size
+        if self.cell_width == 0 or self.cell_height == 0:
+            raise ValueError(
+                "Grid size is too large for the window. "
+                "Increase --width/--height or decrease --size."
+            )
 
         # Colors
         self.color_dead = (0, 0, 0)  # Black
@@ -118,21 +123,20 @@ class PlamyVisualizer:
 
         # Find changed cells
         changed_mask = (current_grid != self.prev_grid)
+        changed_cells = np.argwhere(changed_mask)
 
         # Only redraw changed cells
-        for row in range(grid_size):
-            for col in range(grid_size):
-                if changed_mask[row, col]:
-                    # Determine color
-                    color = self.color_alive if current_grid[row, col] == 1 else self.color_dead
+        for row, col in changed_cells:
+            # Determine color
+            color = self.color_alive if current_grid[row, col] == 1 else self.color_dead
 
-                    # Draw rectangle
-                    pygame.draw.rect(
-                        self.screen,
-                        color,
-                        (col * self.cell_width, row * self.cell_height,
-                         self.cell_width, self.cell_height)
-                    )
+            # Draw rectangle
+            pygame.draw.rect(
+                self.screen,
+                color,
+                (col * self.cell_width, row * self.cell_height,
+                 self.cell_width, self.cell_height)
+            )
 
         # Update previous grid
         np.copyto(self.prev_grid, current_grid)

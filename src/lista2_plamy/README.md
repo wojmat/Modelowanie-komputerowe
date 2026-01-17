@@ -141,6 +141,21 @@ Located in `output/lista2_plamy/plots/`:
 - Screenshots from interactive mode
 - Density evolution plots
 
+## Troubleshooting
+
+### Window is blank or crashes immediately
+
+The visualizer requires each cell to be at least 1 pixel. If you set a grid size
+larger than the window dimensions, the cell width/height becomes zero and the
+program raises a `ValueError`.
+
+**Fix**: Increase `--width`/`--height` or reduce `--size`.
+
+```bash
+# Good: 200x200 grid in an 800x800 window
+python src/lista2_plamy/visualizer.py --size 200 --width 800 --height 800
+```
+
 ## Performance Comparison
 
 ### Original vs Improved
